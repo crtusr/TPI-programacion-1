@@ -63,8 +63,15 @@ void calcularPares(int contador[], int &puntaje)
 
 void calcularTrios(int contador[], int &puntaje)
 {
+  //puse acá que 111 son 1000 puntos pero asumiendo que no hay 6 unos
+  if(contador[0] >= 3) 
+	{
+		puntaje += 1000;
+		contador[0] %= 3;
+	}
 	for(int i = 1; i < 6; i++)
 	{
+    //acá calcula el resto de los triples
 		if(contador[i] >= 3) 
 		{
 			puntaje += (100 * (i + 1) * contador[i] / 3);
@@ -96,31 +103,31 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 		contador[dados[i] - 1]++;
 	}
 	//calculo escalera
-	if(escalera(contador)) return 1500;
+	if(escalera(contador)) 
+  {
+    puntosAct += 1500;
+    return 0;
+  }
 	else
 	{
-	  //me fijo si hay trios de 1 tiene que ir primero porque si sale 111111 serian 2000 puntos
-	  while(contador[0] >= 3) 
+	  //me fijo si hay dos trios de 1 tiene que ir primero porque si sale 111111 serian 2000 puntos lo hice así porque seria un caso limite
+    
+    if(contador[0] == 6) 
 	  {
-	  	puntaje += 1000;
-	  	contador[0] -= 3; //voy eliminando los ya contados
+	  	puntaje += 2000;
+	  	contador[0] -= 6; //elimino los 6 de contador asi me queda en 0
 	  }
+
 	  //reviso si hay triple par
-	  if(contarPares(contador) == 3) return 1500;
-	  //calculo los trios que no son 1
-	  /*
-	  for(int i = 1; i < 6; i++)
-	  {
-	  	while(contador[i] >= 3) 
-	  	{
-	  		puntaje += (i + 1) * 100;
-	  		contador[i] -= 3;
-	  	}
-	  }
-	  */
-	  calcularTrios(contador, puntaje);
-	  //vuelvo a contar pares pero en una variable
+	  if(contarPares(contador) == 3)
+    {
+      puntosAct += 1500;
+      return 0;
+    }
 	  
+	  calcularTrios(contador, puntaje);
+
+	  //se asume que ya no hay triple par
 	  calcularPares(contador, puntaje);
 	  
 	  if(contador[0]) 
@@ -140,7 +147,7 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 	  dadosRestantes += contador[i];
 	}
 	  
-	//tres pares 1500 {hay 3 dos en contador}
+	//tres pares 1500 {3x2, 1x4 y 1x2, 1x6}
 	//escalera 1500 {1 1 1 1 1 1}
 	//trio de unos 1000 (3, x, x, x, x, x)
 	//trios 100*n {x, 3, 3, 3, 3, 3}
@@ -162,8 +169,8 @@ int main()
 {
 	int puntaje = 0;
 	int dados[6] = {1, 1, 1, 3, 4, 6};
-	int prueba[6] = {6, 6, 6, 5, 5, 2};
-	//tirarDados(dados, 6);
-	cout << endl << calcularPuntaje(dados, 6, puntaje) << "  " << puntaje << endl << calcularPuntaje(prueba, 6, puntaje) << "  " << puntaje;
+	//int prueba[6] = {6, 6, 6, 5, 5, 2};
+	tirarDados(dados, 6);
+	cout << endl << calcularPuntaje(dados, 6, puntaje) << "  " << puntaje;
 	
 }
