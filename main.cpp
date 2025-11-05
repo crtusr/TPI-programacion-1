@@ -130,11 +130,13 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 	  //se asume que ya no hay triple par
 	  calcularPares(contador, puntaje);
 	  
+	  //si quedo un 1 suelto
 	  if(contador[0]) 
 	  {
 	  	puntaje += 100;
 	  	contador[0]--;
 	  }
+	  //si quedo un 5 suelto
 	  if(contador[4])
 	  {
 	  	puntaje += 50;
@@ -155,22 +157,25 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 	//uno 100 (1, x, x, x, x, x)
 	//cinco 50 (x, x, x, x, 1, x)
 	
-	/*
-	  que pasa si sale 
-	  1 1 
-	  1 1 1 1 1 1
-	  
-	*/
+	//solo falta codificar el caso "no soup for you"
+
 	puntosAct += puntaje;
 	return dadosRestantes;
 }
 
 int main()
 {
+	int dadosRestantes = 6;
 	int puntaje = 0;
-	int dados[6] = {1, 1, 1, 3, 4, 6};
-	//int prueba[6] = {6, 6, 6, 5, 5, 2};
-	tirarDados(dados, 6);
-	cout << endl << calcularPuntaje(dados, 6, puntaje) << "  " << puntaje;
+	int dados[6] = {0};
+	
+	//esto es basicamente una prueba de las funciones de tirarDados y calcularPuntaje
+	while(dadosRestantes > 1)
+	{
+	tirarDados(dados, dadosRestantes);
+	dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntaje);
+	
+	  cout << endl << dadosRestantes << " " << puntaje << endl;
+	}
 	
 }
