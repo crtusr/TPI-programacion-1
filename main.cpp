@@ -54,8 +54,8 @@ void calcularPares(int contador[], int &puntaje)
 	{
 		if(contador[i] >= 2) 
 		{
-			puntaje += (100 * contador[i] / 2);
-			contador[i] %= 2;
+			puntaje += (100);
+			contador[i] -= 2;
 		}
 	}
 	return;
@@ -67,15 +67,15 @@ void calcularTrios(int contador[], int &puntaje)
   if(contador[0] >= 3) 
 	{
 		puntaje += 1000;
-		contador[0] %= 3;
+		contador[0] -= 3;
 	}
 	for(int i = 1; i < 6; i++)
 	{
     //acá calcula el resto de los triples
 		if(contador[i] >= 3) 
 		{
-			puntaje += (100 * (i + 1) * contador[i] / 3);
-			contador[i] %= 3;
+			puntaje += (100 * (i + 1));
+			contador[i] -= 3;
 		}
 	}
 	return;
@@ -110,7 +110,7 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
   }
 	else
 	{
-	  //me fijo si hay dos trios de 1 tiene que ir primero porque si sale 111111 serian 2000 puntos lo hice así porque seria un caso limite
+	  //El primero es un caso especial me fijo si hay dos trios de 1 tiene que ir primero porque si sale 111111 serian 2000 puntos lo hice así porque seria un caso limite
     
     if(contador[0] == 6) 
 	  {
