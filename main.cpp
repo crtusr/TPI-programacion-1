@@ -6,6 +6,15 @@
 
 using namespace std;
 
+//prueba n~1000 jaja
+void pedirNombres(string &jugador1, string &jugador2) {
+    cout << "Ingresa el nombre del Jugador 1: ";
+    getline(cin, jugador1);
+
+    cout << "Ingresa el nombre del Jugador 2: ";
+    getline(cin, jugador2);
+}
+
 void tirarDados(int dados[], int  cantDados)
 {
 	srand(time(NULL)); //semilla del numero aleatorio
@@ -168,6 +177,8 @@ int main()
 	int dadosRestantes = 6;
 	int puntaje = 0;
 	int dados[6] = {0};
+	int opcion; //prueba
+	
 	
 	//esto es basicamente una prueba de las funciones de tirarDados y calcularPuntaje
 	while(dadosRestantes > 1)
@@ -177,5 +188,34 @@ int main()
 	
 	  cout << endl << dadosRestantes << " " << puntaje << endl;
 	}
+
+	//prueba
+	cout << "   NO SOUP FOR YOU" <<endl;
+    cout << "------------------------"<<endl;
+    cout << "1 - JUGAR"<<endl;
+    cout << "2 - ESTADISTICAS"<<endl;
+    cout << "3 - CREDITOS"<<endl;
+    cout << "------------------------"<<endl;
+    cout << "0 - SALIR"<<endl;
+
+    cin >> opcion;
+
+    switch (opcion){
+        case 1:
+            
+        break;
+        case 2:
+            
+        break;
+        case 3:
+            
+        break;
+        case 0:
+            
+        break;
+        default:
+            cout <<"Opcion incorrecta." << endl;
+
+    }
 	
 }
