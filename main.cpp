@@ -1,3 +1,4 @@
+#include <ios>
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -6,13 +7,16 @@
 
 using namespace std;
 
-//prueba n~1000 jaja
-void pedirNombres(string &jugador1, string &jugador2) {
+void pedirNombres2(string jugador[]) 
+{
+  string dummy;
+	getline(cin, dummy);
+
     cout << "Ingresa el nombre del Jugador 1: ";
-    getline(cin, jugador1);
+    getline(cin, jugador[0]);
 
     cout << "Ingresa el nombre del Jugador 2: ";
-    getline(cin, jugador2);
+    getline(cin, jugador[1]);
 }
 
 void tirarDados(int dados[], int  cantDados)
@@ -166,56 +170,87 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 	//uno 100 (1, x, x, x, x, x)
 	//cinco 50 (x, x, x, x, 1, x)
 	
-	//solo falta codificar el caso "no soup for you"
+	//solo falta codificar el caso "no soup for you" que es cuando se tiraron los y no hay combinaciones posibles, en ese caso puntosAct de volvería 0
 
 	puntosAct += puntaje;
 	return dadosRestantes;
 }
 
+
+
+void jugar(string jugador[], int puntaje[], int confianza[])
+{	
+  //primero defino como es una ronda y quizas despues lo extraiga a una función
+	confianza[0] = 300;
+	confianza[1] = 300;
+	int dadosRestantes = 6;
+	int dados[6];
+	char opcion = 's';
+
+  while(dadosRestantes && opcion == 's')
+	{
+		tirarDados(dados, dadosRestantes);
+		dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntaje[0]);
+		//si me quedan dados por tirar o si mi puntaje no es 0 (si me hubiese salido NO SOUP FOR YOU mi puntaje se volvería 0)
+		if(dadosRestantes && puntaje[0])
+		{
+			cout << endl << "puntaje actual" << endl;
+			cout << "continuar tirando? (s)i/(n)o" << endl;
+			cin >> opcion;
+		}
+		else if(puntaje[0] == 0 || (puntaje[0] < confianza[0] && !dadosRestantes))
+	  {
+			cout << endl << "No soup for you" << endl;
+			confianza[0] -= 100;
+		}
+	}
+	return;
+}
+
+void menuPrincipal()
+{
+	system("cls");
+	cout << "   NO SOUP FOR YOU" <<endl;
+  cout << "------------------------"<<endl;
+  cout << "1 - JUGAR"<<endl;
+  cout << "2 - ESTADISTICAS"<<endl;
+  cout << "3 - CREDITOS"<<endl;
+  cout << "------------------------"<<endl;
+  cout << "0 - SALIR"<<endl;
+
+}
+
 int main()
 {
-	int dadosRestantes = 6;
-	int puntaje = 0;
-	int dados[6] = {0};
-	int opcion; //prueba
+	int opcion = -1; //prueba
+	string jugadores[2];
+	int puntaje[2] = {0};
+	int confianza[2] = {0}; //si esta en 0 es que nunca se arrancó un juego
 	
-	
-	//esto es basicamente una prueba de las funciones de tirarDados y calcularPuntaje
-	while(dadosRestantes > 1)
+	while(opcion)
 	{
-	tirarDados(dados, dadosRestantes);
-	dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntaje);
-	
-	  cout << endl << dadosRestantes << " " << puntaje << endl;
-	}
-
 	//prueba
-	cout << "   NO SOUP FOR YOU" <<endl;
-    cout << "------------------------"<<endl;
-    cout << "1 - JUGAR"<<endl;
-    cout << "2 - ESTADISTICAS"<<endl;
-    cout << "3 - CREDITOS"<<endl;
-    cout << "------------------------"<<endl;
-    cout << "0 - SALIR"<<endl;
-
+    menuPrincipal();
     cin >> opcion;
-
-    switch (opcion){
-        case 1:
-            
+  
+    switch (opcion)
+  	{
+      case 1:
+        pedirNombres2(jugadores);
+				jugar(jugadores, puntaje, confianza);
+  			break;
+      case 2:
+        
         break;
-        case 2:
-            
+      case 3:
+          
         break;
-        case 3:
-            
+      case 0:
+          
         break;
-        case 0:
-            
-        break;
-        default:
-            cout <<"Opcion incorrecta." << endl;
-
-    }
-	
+      default:
+        cout <<"Opcion incorrecta." << endl;
+  	}
+	}
 }
+

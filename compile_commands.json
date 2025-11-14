@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "/data/data/com.termux/files/home/storage/shared/documents/cxxdroid/TPI_programacion_1",
+    "file": "main.cpp",
+    "command": "g++ -I./include -std=c++17 -c main.cpp -o main.o"
+  },
+]
