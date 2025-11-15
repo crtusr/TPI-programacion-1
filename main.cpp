@@ -1,4 +1,4 @@
-#include <ios>
+#include <cstdio>
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -6,6 +6,17 @@
 #include "debug.h"
 
 using namespace std;
+
+//--------funciones para dibujar menues
+
+void dibujarUIPartida(int puntaje[], int confianza[], string jugador[], int puntosTurno)
+{
+	system("cls");
+  cout << "jugador 1: " << jugador[0] << " jugador 2: " << jugador[1] << endl;
+	cout << "puntos: " << puntaje[0] << "puntos: " << puntaje[1];
+
+	return;
+}
 
 void pedirNombres2(string jugador[]) 
 {
@@ -108,7 +119,6 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 {
 	int puntaje = 0;
 	int dadosRestantes = 0;
-	
 	int contador[6] = {0};
 	
 	for(int i = 0; i < cantDados; i++)
@@ -171,38 +181,84 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 	//cinco 50 (x, x, x, x, 1, x)
 	
 	//solo falta codificar el caso "no soup for you" que es cuando se tiraron los y no hay combinaciones posibles, en ese caso puntosAct de volvería 0
+	
+	if(!puntaje) 
+	{
+		puntosAct = 0;
+		return 0;
+	}
 
 	puntosAct += puntaje;
 	return dadosRestantes;
 }
+// simplemente para depurar
 
+void ronda()
+{
 
+  return;
+}
 
 void jugar(string jugador[], int puntaje[], int confianza[])
 {	
   //primero defino como es una ronda y quizas despues lo extraiga a una función
+	puntaje[0] = 0;
+	puntaje[1] = 0;
 	confianza[0] = 300;
 	confianza[1] = 300;
-	int dadosRestantes = 6;
+	int puntosTurno = 0;
+	int dadosRestantes;
+	char opcion;
 	int dados[6];
-	char opcion = 's';
-
-  while(dadosRestantes && opcion == 's')
-	{
-		tirarDados(dados, dadosRestantes);
-		dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntaje[0]);
-		//si me quedan dados por tirar o si mi puntaje no es 0 (si me hubiese salido NO SOUP FOR YOU mi puntaje se volvería 0)
-		if(dadosRestantes && puntaje[0])
-		{
-			cout << endl << "puntaje actual" << endl;
-			cout << "continuar tirando? (s)i/(n)o" << endl;
-			cin >> opcion;
-		}
-		else if(puntaje[0] == 0 || (puntaje[0] < confianza[0] && !dadosRestantes))
+	int ronda = 0;
+	int jAct = 0;
+	//Este bucle representa una ronda
+	
+	//falta hacer una UI mas bonita
+	
+	
+	while(ronda < 6 && puntaje[0] < 2500 && puntaje[1] < 2500)
+	{ 
+		dibujarUIPartida(puntaje, confianza, jugador, puntosTurno);
+		opcion = 's'; //lo necesito para el while interno (posiblemente lo extraiga en otra funcion
+		dadosRestantes = 6;
+    while(dadosRestantes && opcion == 's')
 	  {
-			cout << endl << "No soup for you" << endl;
-			confianza[0] -= 100;
-		}
+		  tirarDados(dados, dadosRestantes);
+		  dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntosTurno);
+	  	
+			  cout << endl << "puntaje actual" << puntosTurno << endl;
+		  //si me quedan dados por tirar o si mi puntaje alcanza la confianza del tirano (si me hubiese salido NO SOUP FOR YOU mi puntaje se volvería jAct)
+			if(!dadosRestantes && puntosTurno >= confianza[jAct])
+			{
+			  cout << "Ya alcanzó la confianza del tirno" << endl << "Utilizo todos los	dados, ronda finlizado";
+				opcion = 'n';
+
+				getchar();
+			}
+			else if(dadosRestantes && puntaje[jAct] >= confianza[jAct])
+		  {
+			  cout << "Ya alcanzó la confianza del tirno" << endl << "Dados restantes: " << dadosRestantes << endl << "¿continuar tirando? (s)i/(n)o" << endl;
+
+			  cin >> opcion;
+		  }
+		  else if(puntosTurno == 0 || (puntosTurno < confianza[jAct] && !dadosRestantes))
+	    {
+			  cout << endl << "No soup for you" << endl;
+			  confianza[jAct] -= 100;
+			  getchar(); // es para "pausar" el programa y poder leer el mensaje
+		  }
+		  else if(puntosTurno < confianza[jAct] && dadosRestantes)
+		  {
+			  cout << endl << "no alcanza la confianza del tirano, debe seguir tirando";
+			  getchar();
+		  }
+			
+		  if(opcion == 'n')
+		  {
+		  	jAct = (jAct + 1) % 2;
+		  }
+	  }
 	}
 	return;
 }
@@ -224,9 +280,9 @@ int main()
 {
 	int opcion = -1; //prueba
 	string jugadores[2];
-	int puntaje[2] = {0};
+	int puntaje[2] = {-1, -1};
 	int confianza[2] = {0}; //si esta en 0 es que nunca se arrancó un juego
-	
+	int dados[6] = {3, 5, 5, 1, 2, 4};
 	while(opcion)
 	{
 	//prueba
@@ -237,10 +293,13 @@ int main()
   	{
       case 1:
         pedirNombres2(jugadores);
-				jugar(jugadores, puntaje, confianza);
-  			break;
+				jugar(jugadores, puntaje, confianza);			
+				break;
       case 2:
-        
+  		  calcularPuntaje(dados, 6, puntaje[0]);
+				cout << puntaje[0] << endl;
+				getchar();
+				getchar();
         break;
       case 3:
           
