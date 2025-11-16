@@ -5,15 +5,18 @@
 #include <ctime>
 #include "debug.h"
 
+
 using namespace std;
 
 //--------funciones para dibujar menues
 
-void dibujarUIPartida(int puntaje[], int confianza[], string jugador[], int puntosTurno)
+void dibujarUIPartida(int puntaje[], int confianza[], string jugador[], int puntosTurno, int turno, int ronda)
 {
 	system("cls");
-  cout << "jugador 1: " << jugador[0] << " jugador 2: " << jugador[1] << endl;
-	cout << "puntos: " << puntaje[0] << "puntos: " << puntaje[1];
+	cout << jugador[0] << ": " << setw(30 - jugador[0].size()) << left << puntaje[0] << setw(30) << right << jugador[1] << ": " << puntaje[1] << endl;
+	cout << "Confianza: " << setw(30) << left << confianza[0] << setw(23) << right << "Confianza: " << confianza[1];
+  cout << endl << "Ronda: " << ronda << endl;
+	cout << endl << "Turno de " << jugador[turno] << endl;
 
 	return;
 }
@@ -32,25 +35,26 @@ void pedirNombres2(string jugador[])
 
 void tirarDados(int dados[], int  cantDados)
 {
+  int rollDelay = cantDados * 1000;
 	srand(time(NULL)); //semilla del numero aleatorio
 	/*
 	 *el chiste es que random[] va a ser una secuencia de numeros que se va haciendo cada vez más chica ej: {99750, 84500, ...,} y con rand lo doy un poco de variabilidad
 	 * */
         int random[6];
-	random[0] = rand() % 500 + 99750; // defino el primero de los random
+	random[0] = rand() % 50 + rollDelay / 2; // defino el primero de los random
 	// en este for lo unico que hago es ir decrementandolo de a 1/6
 	for(int i = 1; i < 6; i++)
 	{
 		random[i] = random[i - 1] - random[0] / 6;
 	}
 	// este es el for donde ocurre la animación el for externo solo hace de contador de 0 a 149999
-	for(int i = 0; i < 150000; i++)
+	for(int i = 0; i < rollDelay; i++)
 	{
 		//este for hace que los dados cambien, itera por cada dado
 		for(int j = 0; j < cantDados; j++)
 		{
 			// el if hace que cuando el contador i llegue a cierto punto deje de actualizar los dados que no cumplen la condicion, como los random[] van en orden decresciente, entonces los primeros dados van a dejar de actualizarse antes que los ultimos
-			if(i < 150000 - random[j])
+			if(i < rollDelay - random[j])
 			{
 				dados[j] = rand() % 6 + 1;
 			}
@@ -206,59 +210,64 @@ void jugar(string jugador[], int puntaje[], int confianza[])
 	puntaje[1] = 0;
 	confianza[0] = 300;
 	confianza[1] = 300;
-	int puntosTurno = 0;
+	int puntosTurno;
 	int dadosRestantes;
 	char opcion;
 	int dados[6];
 	int ronda = 0;
-	int jAct = 0;
-	//Este bucle representa una ronda
+	//Este bucle representa una partida
 	
 	//falta hacer una UI mas bonita
 	
 	
 	while(ronda < 6 && puntaje[0] < 2500 && puntaje[1] < 2500)
 	{ 
-		dibujarUIPartida(puntaje, confianza, jugador, puntosTurno);
-		opcion = 's'; //lo necesito para el while interno (posiblemente lo extraiga en otra funcion
-		dadosRestantes = 6;
-    while(dadosRestantes && opcion == 's')
-	  {
-		  tirarDados(dados, dadosRestantes);
-		  dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntosTurno);
-	  	
-			  cout << endl << "puntaje actual" << puntosTurno << endl;
-		  //si me quedan dados por tirar o si mi puntaje alcanza la confianza del tirano (si me hubiese salido NO SOUP FOR YOU mi puntaje se volvería jAct)
-			if(!dadosRestantes && puntosTurno >= confianza[jAct])
-			{
-			  cout << "Ya alcanzó la confianza del tirno" << endl << "Utilizo todos los	dados, ronda finlizado";
-				opcion = 'n';
-
-				getchar();
-			}
-			else if(dadosRestantes && puntaje[jAct] >= confianza[jAct])
-		  {
-			  cout << "Ya alcanzó la confianza del tirno" << endl << "Dados restantes: " << dadosRestantes << endl << "¿continuar tirando? (s)i/(n)o" << endl;
-
-			  cin >> opcion;
-		  }
-		  else if(puntosTurno == 0 || (puntosTurno < confianza[jAct] && !dadosRestantes))
+		for(int jAct = 0; jAct < 2; jAct++)
+		{
+      puntosTurno = 0;
+		  opcion = 's'; //lo necesito para el while interno (posiblemente lo extraiga en otra funcion
+		  dadosRestantes = 6;
+		  dibujarUIPartida(puntaje, confianza, jugador, puntosTurno, jAct, ronda);
+      while(dadosRestantes && opcion == 's')
 	    {
-			  cout << endl << "No soup for you" << endl;
-			  confianza[jAct] -= 100;
-			  getchar(); // es para "pausar" el programa y poder leer el mensaje
-		  }
-		  else if(puntosTurno < confianza[jAct] && dadosRestantes)
-		  {
-			  cout << endl << "no alcanza la confianza del tirano, debe seguir tirando";
-			  getchar();
-		  }
-			
-		  if(opcion == 'n')
-		  {
-		  	jAct = (jAct + 1) % 2;
-		  }
-	  }
+		    tirarDados(dados, dadosRestantes);
+		    dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntosTurno);
+	    	
+			  cout << endl << "puntaje actual" << puntosTurno << endl;
+		    //si me quedan dados por tirar o si mi puntaje alcanza la confianza del tirano (si me hubiese salido NO SOUP FOR YOU mi puntaje se volvería 0)
+			  if(!dadosRestantes && puntosTurno >= confianza[jAct])
+			  {
+			    cout << "Ya alcanzó la confianza del tirno" << endl << "Utilizo todos los	dados, ronda finlizado";
+				  opcion = 'n';
+  
+				  getchar();
+			  }
+			  else if(dadosRestantes && puntosTurno >= confianza[jAct])
+		    {
+			    cout << "Ya alcanzó la confianza del tirno" << endl << "Dados restantes: " << dadosRestantes << endl << "¿continuar tirando? (s)i/(n)o" << endl;
+  
+			    cin >> opcion;
+		    }
+		    else if(puntosTurno == 0 || (puntosTurno < confianza[jAct] && !dadosRestantes))
+	      {
+			    cout << endl << "No soup for you" << endl;
+			    if(confianza > 300) confianza[jAct] -= 100;
+				  opcion = 'p'; //podria ser cualquie valor que no coincida yo elelgí 'p' por perdió
+			    getchar(); // es para "pausar" el programa y poder leer el mensaje
+		    }
+		    else if(puntosTurno < confianza[jAct] && dadosRestantes)
+		    {
+			    cout << endl << "no alcanza la confianza del tirano, debe seguir tirando";
+			    getchar();
+		    }
+		  	
+		    if(opcion == 'n')
+		    {
+				  puntaje[jAct] += confianza[jAct];
+				  confianza[jAct] += 300;
+		    }
+	    }
+		}
 	}
 	return;
 }
