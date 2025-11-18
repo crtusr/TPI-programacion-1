@@ -23,6 +23,7 @@ void dibujarUIPartida(int puntaje[], int confianza[], string jugador[], int punt
 
 void pedirNombres2(string jugador[]) 
 {
+	system("cls");
   string dummy;
 	getline(cin, dummy);
 
@@ -35,7 +36,7 @@ void pedirNombres2(string jugador[])
 
 void tirarDados(int dados[], int  cantDados)
 {
-  int rollDelay = cantDados * 1000;
+  int rollDelay = cantDados * 50;
 	srand(time(NULL)); //semilla del numero aleatorio
 	/*
 	 *el chiste es que random[] va a ser una secuencia de numeros que se va haciendo cada vez más chica ej: {99750, 84500, ...,} y con rand lo doy un poco de variabilidad
@@ -119,7 +120,7 @@ int contarPares(int contador[])
 	return contPares;
 }
 
-int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
+int calcularPuntaje(int dados[], int cantDados, int &puntosAct, bool &sopaEsp)
 {
 	int puntaje = 0;
 	int dadosRestantes = 0;
@@ -132,6 +133,7 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 	//calculo escalera
 	if(escalera(contador)) 
   {
+		sopaEsp = true;
     puntosAct += 1500;
     return 0;
   }
@@ -195,17 +197,41 @@ int calcularPuntaje(int dados[], int cantDados, int &puntosAct)
 	puntosAct += puntaje;
 	return dadosRestantes;
 }
-// simplemente para depurar
 
-void ronda()
+void calcularHitos(bool hitos[][5], int jugMaxSopa, int confianza[], int contSopaVal[], bool sopaEsp[], int contNoSoup[])
 {
+  hitos[jugMaxSopa][0] = true;
 
+	if(confianza[0] > confianza[1]) hitos[0][1] = true;
+	else if(confianza[0] < confianza[1]) hitos[1][1] = true;
+	if(contSopaVal[0] > contSopaVal[1]) hitos[0][2] = true;
+	else if(contSopaVal[0] < contSopaVal[1]) hitos[1][2] = true;
+	if(sopaEsp[0]) hitos[0][3] = true;
+	if(sopaEsp[1]) hitos[1][3] = true;
+	if(contNoSoup[0] > contNoSoup[1]) hitos[0][4] = true;
+	else if(contNoSoup[0] < contNoSoup[1]) hitos[1][4] = true;
   return;
+}
+
+void resultados(string jugador[], int puntaje[], int confianza[], bool hitos[][5])
+{
+  cout << left << setw(20) << "HITO" << setw(20) << jugador[0] << jugador[1] << endl;
+	cout << setfill('-') << setw(60) << endl;
+	cout << setfill(' ') << left << setw(20) << "Puntos" << right << setw(5) << puntaje[0] << left << setw(15) << " PTS" << left << setw(5) << puntaje[1] << " PTS" << endl;
+	cout << left << setw(20) << "Sopa mas cara" << right << setw(5) << 300*hitos[0][0] << left << setw(15) << " PTS" << right << setw(5) << 300*hitos[1][0] << " PTS" << endl;
+	cout << left << setw(20) << "Mayor confianza" << right << setw(5) << 200*hitos[0][1] << left << setw(15) << " PTS" << right << setw(5) << 200*hitos[1][1] << " PTS" << endl;
+	cout << left << setw(20) << "Cliente constante" << right << setw(5) << 100*hitos[0][2] << left << setw(15) << " PTS" << right << setw(5) << 100*hitos[1][2] << " PTS" << endl;
+	cout << left << setw(20) << "Pedido perfecto" << right << setw(5) << 500*hitos[0][3] << left << setw(15) << " PTS" << right << setw(5) << 500*hitos[1][3] << " PTS" << endl;
+	cout << left << setw(20) << "Premio George" << right << setw(5) << 100*hitos[0][4] << left << setw(15) << " PTS" << right << setw(5) << 100*hitos[1][4] << " PTS" << endl;
+	cout << setfill('-') << setw(60)  << setfill(' ') << endl;
+	system("pause");
+	return;
 }
 
 void jugar(string jugador[], int puntaje[], int confianza[])
 {	
   //primero defino como es una ronda y quizas despues lo extraiga a una función
+	const int minValido = 300;
 	puntaje[0] = 0;
 	puntaje[1] = 0;
 	confianza[0] = 300;
@@ -215,9 +241,28 @@ void jugar(string jugador[], int puntaje[], int confianza[])
 	char opcion;
 	int dados[6];
 	int ronda = 0;
-	//Este bucle representa una partida
+
+	//variables para los hitos
 	
-	//falta hacer una UI mas bonita
+	int contSopaVal[2] = {0};		// Cliente Constante
+	int contNoSoup[2] = {0};		// Premio George
+	int maxSopa = -1; 
+	int jugMaxSopa;							// Sopa más cara
+	bool sopaEsp[2] = {0};			// Si logro tirar Sopa especial al menos una vez en la partida
+	int jugMayConfianza[2];			// Mayor confianza
+  
+	bool hitos[2][5] = {0};
+	
+	/* hitos lo defini como un array bidimiensional
+	 *
+	 * Sopa mas cara			x	x
+	 * Mayor confianza		x	x
+	 * Cliente Constante	x	x
+	 * Pedido perfecto		x	x
+	 * Premio George			x	x
+	 *
+	 * */
+	//Este bucle representa una partida
 	
 	
 	while(ronda < 6 && puntaje[0] < 2500 && puntaje[1] < 2500)
@@ -227,48 +272,66 @@ void jugar(string jugador[], int puntaje[], int confianza[])
       puntosTurno = 0;
 		  opcion = 's'; //lo necesito para el while interno (posiblemente lo extraiga en otra funcion
 		  dadosRestantes = 6;
-		  dibujarUIPartida(puntaje, confianza, jugador, puntosTurno, jAct, ronda);
+		  dibujarUIPartida(puntaje, confianza, jugador, puntosTurno, jAct, ronda + 1);
       while(dadosRestantes && opcion == 's')
 	    {
+				cout << endl;
+				system("set /p \"=Presione enter para tirar los dados...\" "); //Igual a system pause pero solo se toma con enter y me deja poner un texto en consola
 		    tirarDados(dados, dadosRestantes);
-		    dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntosTurno);
-	    	
-			  cout << endl << "puntaje actual" << puntosTurno << endl;
+		    dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntosTurno, sopaEsp[jAct]);
+
+			  cout << endl << "puntaje actual: " << puntosTurno << endl;
 		    //si me quedan dados por tirar o si mi puntaje alcanza la confianza del tirano (si me hubiese salido NO SOUP FOR YOU mi puntaje se volvería 0)
-			  if(!dadosRestantes && puntosTurno >= confianza[jAct])
+			  if(!dadosRestantes && puntosTurno >= minValido)
 			  {
-			    cout << "Ya alcanzó la confianza del tirno" << endl << "Utilizo todos los	dados, ronda finlizado";
+			    cout << "Logro alcanzar una sopa valida" << endl << "Utilizo todos los dados, turno finlizado" << endl;
 				  opcion = 'n';
   
-				  getchar();
+				  system("pause");
 			  }
-			  else if(dadosRestantes && puntosTurno >= confianza[jAct])
+			  else if(dadosRestantes && puntosTurno >= minValido)
 		    {
-			    cout << "Ya alcanzó la confianza del tirno" << endl << "Dados restantes: " << dadosRestantes << endl << "¿continuar tirando? (s)i/(n)o" << endl;
+			    cout << "Logro alcanzar una sopa valida" << endl;
+					cout << "Dados restantes: " << dadosRestantes << endl;
+					cout << "Desea continuar tirando? (s)i/(n)o: ";
   
 			    cin >> opcion;
 		    }
-		    else if(puntosTurno == 0 || (puntosTurno < confianza[jAct] && !dadosRestantes))
+		    else if(puntosTurno == 0 || (puntosTurno < minValido && !dadosRestantes))
 	      {
+					
 			    cout << endl << "No soup for you" << endl;
-			    if(confianza > 300) confianza[jAct] -= 100;
-				  opcion = 'p'; //podria ser cualquie valor que no coincida yo elelgí 'p' por perdió
-			    getchar(); // es para "pausar" el programa y poder leer el mensaje
+			    contNoSoup[jAct]++;
+					if(confianza[jAct] > 300) confianza[jAct] -= 100;
+				  opcion = 'p'; //podria ser cualquier valor que no coincida yo elelgí 'p' por perdió
+			    system("pause"); // es para "pausar" el programa y poder leer el mensaje
 		    }
-		    else if(puntosTurno < confianza[jAct] && dadosRestantes)
+		    else if(puntosTurno < minValido && dadosRestantes)
 		    {
-			    cout << endl << "no alcanza la confianza del tirano, debe seguir tirando";
-			    getchar();
-		    }
+			    cout << endl << "no alcanza la confianza del tirano, debe seguir tirando" << endl;
+				}
 		  	
 		    if(opcion == 'n')
 		    {
-				  puntaje[jAct] += confianza[jAct];
+				  contSopaVal[jAct]++;
+					puntaje[jAct] += confianza[jAct];
 				  confianza[jAct] += 300;
+					if(maxSopa < puntosTurno)
+					{
+						maxSopa = puntosTurno;
+						jugMaxSopa = jAct;
+					}
 		    }
 	    }
 		}
+		ronda++;
 	}
+	cout << endl << endl << "juego finalizado" << endl << endl;
+	//sumar los puntos de los hitos aquí
+	system("pause");
+  system("cls");
+	calcularHitos(hitos, jugMaxSopa, confianza, contSopaVal, sopaEsp, contNoSoup);
+	resultados(jugador, puntaje, confianza, hitos);
 	return;
 }
 
@@ -282,7 +345,8 @@ void menuPrincipal()
   cout << "3 - CREDITOS"<<endl;
   cout << "------------------------"<<endl;
   cout << "0 - SALIR"<<endl;
-
+	cout << endl << "Por favor elija una opcion: ";
+  return;
 }
 
 int main()
@@ -305,10 +369,6 @@ int main()
 				jugar(jugadores, puntaje, confianza);			
 				break;
       case 2:
-  		  calcularPuntaje(dados, 6, puntaje[0]);
-				cout << puntaje[0] << endl;
-				getchar();
-				getchar();
         break;
       case 3:
           
