@@ -15,7 +15,7 @@ void dibujarUIPartida(int puntaje[], int confianza[], string jugador[], int punt
 	system("cls");
 	cout << jugador[0] << ": " << setw(30 - jugador[0].size()) << left << puntaje[0] << setw(30) << right << jugador[1] << ": " << puntaje[1] << endl;
 	cout << "Confianza: " << setw(30) << left << confianza[0] << setw(23) << right << "Confianza: " << confianza[1];
-  cout << endl << "Ronda: " << ronda << endl;
+  cout << endl << right << setw(15) << "Ronda: " << left << ronda << endl;
 	cout << endl << "Turno de " << jugador[turno] << endl;
 
 	return;
@@ -23,15 +23,26 @@ void dibujarUIPartida(int puntaje[], int confianza[], string jugador[], int punt
 
 void pedirNombres2(string jugador[]) 
 {
-	system("cls");
-  string dummy;
-	getline(cin, dummy);
-
-    cout << "Ingresa el nombre del Jugador 1: ";
+	char opcion = 'n';
+	while(tolower(opcion) == 'n')
+	{
+	  system("cls");
+    string dummy;
+	  getline(cin, dummy);
+      
+    cout << "NO SOUP FOR YOU" << endl;
+	  cout << setfill('-') << setw(60) << "-" << setfill(' ') << endl;
+	  cout << "Antes de comenzar deben registrar sus nombres: " << endl;
+  	
+    cout << endl << "Jugador 1: ";
     getline(cin, jugador[0]);
-
-    cout << "Ingresa el nombre del Jugador 2: ";
+  
+    cout << endl << "Jugador 2: ";
     getline(cin, jugador[1]);
+    
+		cout << endl << "Confirmar nombres? (s)i o (n)o: "; 
+		cin >> opcion;
+	}
 }
 
 void tirarDados(int dados[], int  cantDados)
@@ -357,7 +368,7 @@ void jugar(string jugador[], int puntaje[], int confianza[])
 			    cout << "El tirano no aceptara pedidos tan endebles, debe seguir tirando" << endl;
 				}
 		  	
-		    if(opcion == 'n')
+		    if(tolower(opcion) == 'n')
 		    {
 				  contSopaVal[jAct]++;
 					puntaje[jAct] += puntosTurno > confianza[jAct] ? confianza[jAct] : puntosTurno;
@@ -458,6 +469,41 @@ void creditos()
 	return;
 }
 
+void debugDados()
+{
+	int dados[6];
+	int input;
+	int dadoAct = 0;
+	int dadosRestantes;
+	int puntos = 0;
+	bool sopaEsp;
+
+	cout << "ingrese los valores de los dados como un numero de 6 digitos: ";
+	cin >> input;
+
+	while(input > 0 && dadoAct < 6)
+	{
+		dados[dadoAct] = input % 10;
+		if(dados[dadoAct] > 6 || dados[dadoAct] < 1)
+		{
+			cout << endl << "Inrodujo valores de dados no validos" << endl;
+			system("pause");
+			return;
+		}
+		input /= 10;
+		dadoAct++;
+	}
+	dadosRestantes = calcularPuntaje(dados, dadoAct, puntos, sopaEsp);
+	for(int i = 0; i < 6; i++)
+	{
+		cout << dados[i] << " ";
+	}
+
+	cout << endl << "calculo de puntos: " << puntos << " |dados restantes: " << dadosRestantes;
+	system("pause");
+	return;
+}
+
 int main()
 {
 	int nEntradas = 0;
@@ -489,6 +535,10 @@ int main()
 			case 3:
         creditos(); 
         break;
+			case 4:
+				system("cls");
+        debugDados();
+				break;
       case 0:
 				system("cls");
         cout << endl << endl << endl << "Esta seguro de que desea salir del juego? (s)i o (n)o?";
