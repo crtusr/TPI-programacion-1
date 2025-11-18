@@ -3,12 +3,12 @@
 #include <iomanip>
 #include <cstdlib>
 #include <ctime>
-#include "debug.h"
-
+// #include "debug.h"
+#include "funciones.h"
 
 using namespace std;
 
-//--------funciones para dibujar menues
+//--------funcion para dibujar menues
 
 void dibujarUIPartida(int puntaje[], int confianza[], string jugador[], int puntosTurno, int turno, int ronda)
 {
@@ -36,7 +36,7 @@ void pedirNombres2(string jugador[])
 
 void tirarDados(int dados[], int  cantDados)
 {
-  int rollDelay = cantDados * 50;
+  int rollDelay = cantDados * 200;
 	srand(time(NULL)); //semilla del numero aleatorio
 	/*
 	 *el chiste es que random[] va a ser una secuencia de numeros que se va haciendo cada vez más chica ej: {99750, 84500, ...,} y con rand lo doy un poco de variabilidad
@@ -215,15 +215,60 @@ void calcularHitos(bool hitos[][5], int jugMaxSopa, int confianza[], int contSop
 
 void resultados(string jugador[], int puntaje[], int confianza[], bool hitos[][5])
 {
+	int bonus[2][5];
+	int puntosHitos[5] = {300, 200, 100, 500, 100};
+	int ganador;
+	for(int i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < 5; j++) 
+		{
+			bonus[i][j] = puntosHitos[j]*hitos[i][j];
+		}
+	}
   cout << left << setw(20) << "HITO" << setw(20) << jugador[0] << jugador[1] << endl;
-	cout << setfill('-') << setw(60) << endl;
-	cout << setfill(' ') << left << setw(20) << "Puntos" << right << setw(5) << puntaje[0] << left << setw(15) << " PTS" << left << setw(5) << puntaje[1] << " PTS" << endl;
-	cout << left << setw(20) << "Sopa mas cara" << right << setw(5) << 300*hitos[0][0] << left << setw(15) << " PTS" << right << setw(5) << 300*hitos[1][0] << " PTS" << endl;
-	cout << left << setw(20) << "Mayor confianza" << right << setw(5) << 200*hitos[0][1] << left << setw(15) << " PTS" << right << setw(5) << 200*hitos[1][1] << " PTS" << endl;
-	cout << left << setw(20) << "Cliente constante" << right << setw(5) << 100*hitos[0][2] << left << setw(15) << " PTS" << right << setw(5) << 100*hitos[1][2] << " PTS" << endl;
-	cout << left << setw(20) << "Pedido perfecto" << right << setw(5) << 500*hitos[0][3] << left << setw(15) << " PTS" << right << setw(5) << 500*hitos[1][3] << " PTS" << endl;
-	cout << left << setw(20) << "Premio George" << right << setw(5) << 100*hitos[0][4] << left << setw(15) << " PTS" << right << setw(5) << 100*hitos[1][4] << " PTS" << endl;
-	cout << setfill('-') << setw(60)  << setfill(' ') << endl;
+	cout << setfill('-') << setw(60) << "-" << endl;
+	cout << setfill(' ') << left << setw(20) << "Puntos" << right << setw(5) << puntaje[0] << left << setw(15) << " PTS" << right << setw(5) << puntaje[1] << " PTS" << endl;
+	cout << left << setw(20) << "Sopa mas cara" << right << setw(5) << bonus[0][0] << left << setw(15) << " PTS" << right << setw(5) << bonus[1][0] << " PTS" << endl;
+	cout << left << setw(20) << "Mayor confianza" << right << setw(5) << bonus[0][1] << left << setw(15) << " PTS" << right << setw(5) << bonus[1][1] << " PTS" << endl;
+	cout << left << setw(20) << "Cliente constante" << right << setw(5) << bonus[0][2] << left << setw(15) << " PTS" << right << setw(5) << bonus[1][2] << " PTS" << endl;
+	cout << left << setw(20) << "Pedido perfecto" << right << setw(5) << bonus[0][3] << left << setw(15) << " PTS" << right << setw(5) << bonus[1][3] << " PTS" << endl;
+	cout << left << setw(20) << "Premio George" << right << setw(5) << bonus[0][4] << left << setw(15) << " PTS" << right << setw(5) << bonus[1][4] << " PTS" << endl;
+	cout << setfill('-') << setw(60) << "-" << setfill(' ') << endl;
+	for(int i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			puntaje[i] += bonus[i][j];
+		}
+	}
+
+	if(puntaje[0] > puntaje[1])
+	{
+	  ganador = 0;
+	}
+	else if(puntaje[0] < puntaje[1])
+	{
+	  ganador = 1;
+	}
+	else
+	{
+	  if(confianza[0] > confianza[1])
+	  {
+	    ganador = 0;
+	  }
+	  else if(confianza[0] < confianza[1])
+	  {
+	    ganador = 1;
+	  }
+		else ganador = -1; //esto sería un empate
+	}
+	cout << left << setw(20) << "TOTAL" << right << setw(5) << puntaje[0] << left << setw(15) << " PTS" << right << setw(5) << puntaje[1] << " PTS" << endl;
+	if(ganador < 0)
+	{
+	  cout << endl << "Tanto " << jugador[0] << " como " << jugador[1] << "se pueden consderar clientes fieles del tirano de la sopa";
+	}
+	else cout << endl << "GANADOR: " << jugador[ganador] << " con " << puntaje[ganador] << " puntos." << endl;
+
 	system("pause");
 	return;
 }
@@ -277,6 +322,7 @@ void jugar(string jugador[], int puntaje[], int confianza[])
 	    {
 				cout << endl;
 				system("set /p \"=Presione enter para tirar los dados...\" "); //Igual a system pause pero solo se toma con enter y me deja poner un texto en consola
+				cout << endl;
 		    tirarDados(dados, dadosRestantes);
 		    dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntosTurno, sopaEsp[jAct]);
 
@@ -308,13 +354,13 @@ void jugar(string jugador[], int puntaje[], int confianza[])
 		    }
 		    else if(puntosTurno < minValido && dadosRestantes)
 		    {
-			    cout << endl << "no alcanza la confianza del tirano, debe seguir tirando" << endl;
+			    cout << "El tirano no aceptara pedidos tan endebles, debe seguir tirando" << endl;
 				}
 		  	
 		    if(opcion == 'n')
 		    {
 				  contSopaVal[jAct]++;
-					puntaje[jAct] += confianza[jAct];
+					puntaje[jAct] += puntosTurno > confianza[jAct] ? confianza[jAct] : puntosTurno;
 				  confianza[jAct] += 300;
 					if(maxSopa < puntosTurno)
 					{
@@ -349,11 +395,79 @@ void menuPrincipal()
   return;
 }
 
+void agregarRanking(string jugador[], string clasificadoJ[], int puntaje[] , int clasificadoP[], int confianza[], int clasificadoC[], int &nEntradas)
+{
+	string temp;
+	int temp2;
+	int j;
+	for(int i = 0; i < 2; i++)
+	{
+		j = nEntradas;
+		clasificadoJ[j] = jugador[i];
+		clasificadoP[j] = puntaje[i];
+		clasificadoC[j] = confianza[i];
+		while(j > 0 && clasificadoP[j] > clasificadoP[j-1])
+		{
+			//nombre del jugador
+			temp = clasificadoJ[j-1];
+			clasificadoJ[j-1] = clasificadoJ[j];
+			clasificadoJ[j] = temp;
+			
+			temp2 = clasificadoP[j-1];
+			clasificadoP[j-1] = clasificadoP[j];
+			clasificadoP[j] = temp2;
+
+			temp2 = clasificadoC[j-1];
+			clasificadoC[j-1] = clasificadoC[j];
+			clasificadoC[j] = temp2;
+
+			j--;
+		}
+		if(nEntradas < 5)
+		{
+			nEntradas++;
+	  }
+	}
+	return;
+}
+
+void estadisticas(string jugador[], int puntaje[], int confianza[], int nEntradas)
+{
+	system("cls");
+	cout << "ESTADISTICA";
+	cout << setfill('-') << setw(60) << "-" << endl << setfill(' ');
+	cout << left << setw(20) << "NOMBRE" << setw(20) << "PUNTOS" << "CONFIANZA" << endl;
+	for(int i = 0; i < nEntradas; i++)
+	{
+		cout << left << setw(20) << jugador[i] << right << setw(4) << puntaje[i] << left << setw(16) << " PTS" << right << confianza[i] << " PTS" << endl;
+	}
+	system("pause");
+	return;
+}
+void creditos()
+{
+	system("cls");
+  cout << "EQUIPO 17" << endl;
+	cout << setfill('-') << setw(60) << "-" << endl << setfill(' ') << endl;
+	cout << left << setw(20) << "LEGAJO" << setw(20) << "NOMBRE" << "APELLIDO" << endl << endl;
+	cout << left << setw(20) << "34100" << setw(20) << "Hernan" << "Flores" << endl;
+	cout << left << setw(20) << "32493" << setw(20) << "Mauro" << "Calvo" << endl;
+	cout << left << setw(20) << "34219" << setw(20) << "Lucas" << "Gasperi" << endl << endl;
+	cout << setfill('-') << setw(60) << "-" << endl << setfill(' ') << endl << endl;
+	system("pause");
+	return;
+}
+
 int main()
 {
+	int nEntradas = 0;
 	int opcion = -1; //prueba
+	char salir = 'n';
 	string jugadores[2];
 	int puntaje[2] = {-1, -1};
+	string historialJugadores[6];
+	int historialPuntajes[6] = {0};
+	int historialConfianza[6] = {0};
 	int confianza[2] = {0}; //si esta en 0 es que nunca se arrancó un juego
 	int dados[6] = {3, 5, 5, 1, 2, 4};
 	while(opcion)
@@ -367,18 +481,25 @@ int main()
       case 1:
         pedirNombres2(jugadores);
 				jugar(jugadores, puntaje, confianza);			
+				agregarRanking(jugadores, historialJugadores, puntaje, historialPuntajes, confianza, historialConfianza, nEntradas);
 				break;
       case 2:
+				estadisticas(historialJugadores, historialPuntajes, historialConfianza, nEntradas);
         break;
-      case 3:
-          
+			case 3:
+        creditos(); 
         break;
       case 0:
-          
+				system("cls");
+        cout << endl << endl << endl << "Esta seguro de que desea salir del juego? (s)i o (n)o?";
+				cin >> salir;
+				if(salir == 's') opcion = 0;
+				else if(salir == 'n') opcion = 1;
         break;
       default:
         cout <<"Opcion incorrecta." << endl;
   	}
 	}
+	return 0;
 }
 
