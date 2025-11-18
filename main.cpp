@@ -15,7 +15,7 @@ void dibujarUIPartida(int puntaje[], int confianza[], string jugador[], int punt
 	system("cls");
 	cout << jugador[0] << ": " << setw(30 - jugador[0].size()) << left << puntaje[0] << setw(30) << right << jugador[1] << ": " << puntaje[1] << endl;
 	cout << "Confianza: " << setw(30) << left << confianza[0] << setw(23) << right << "Confianza: " << confianza[1];
-  cout << endl << right << setw(15) << "Ronda: " << left << ronda << endl;
+  cout << endl << right << setw(35) << "Ronda: " << left << ronda << endl;
 	cout << endl << "Turno de " << jugador[turno] << endl;
 
 	return;
@@ -337,11 +337,11 @@ void jugar(string jugador[], int puntaje[], int confianza[])
 		    tirarDados(dados, dadosRestantes);
 		    dadosRestantes = calcularPuntaje(dados, dadosRestantes, puntosTurno, sopaEsp[jAct]);
 
-			  cout << endl << "puntaje actual: " << puntosTurno << endl;
+			  cout << endl << "puntaje acumulado: " << puntosTurno << endl;
 		    //si me quedan dados por tirar o si mi puntaje alcanza la confianza del tirano (si me hubiese salido NO SOUP FOR YOU mi puntaje se volvería 0)
 			  if(!dadosRestantes && puntosTurno >= minValido)
 			  {
-			    cout << "Logro alcanzar una sopa valida" << endl << "Utilizo todos los dados, turno finlizado" << endl;
+			    cout << "Logro alcanzar una sopa valida" << endl << endl << "Utilizo todos los dados, turno finlizado" << endl;
 				  opcion = 'n';
   
 				  system("pause");
@@ -506,6 +506,7 @@ void debugDados()
 
 int main()
 {
+
 	int nEntradas = 0;
 	int opcion = -1; //prueba
 	char salir = 'n';
